@@ -4,36 +4,8 @@ import java.io.*;
 import java.util.Scanner;
 import java.lang.Math;
 
-public class Base64 
-{
-	public static void main(String[] args)
-	{
-		String input,input2,input3,input4;
-		
-		Scanner scan=new Scanner(System.in);
-		System.out.println("Base64 인코딩 할 문자를 입력해주세요");
-		input=scan.nextLine();  	//String input="ABC";
-		byte[] bytes=input.getBytes();
-		encode(bytes);		
-		
-		Scanner scan2=new Scanner(System.in);
-		System.out.println("Base64 디코딩 할 문자를 입력해주세요");
-		input2=scan.nextLine();  	//String input="ABC";
-		decode(input2);	
-		
-		Scanner scan3=new Scanner(System.in);
-		System.out.println("Hex 인코딩 할 문자를 입력해주세요");
-		input3=scan.nextLine();
-		byte[] bytes2= input3.getBytes();
-        Hex.encode(bytes2);
-        
-        Scanner scan4=new Scanner(System.in);
-        System.out.println();
-		System.out.println("Hex 디코딩 할 문자를 입력해주세요");
-		input4=scan4.nextLine();		
-		Hex.decode(input4);
-	}
-	
+public class WKKBase64 
+{	
 	public static String encode(byte[] input)
 	{
 		String text=new String(input);
@@ -69,33 +41,24 @@ public class Base64
 			}
 		}
 		int SbSize=sb_size;
-		int row=(int)Math.ceil(sb_size/6);
+		
+		double a=(double)sb_size/6.0;
+		double divide=(Math.ceil(a));
+		int row=(int)divide;
 		int[][] six_binary;
 		six_binary=new int[row][6];
-		
-		while(sb_size>0)     //6비트로 자르기
+			
+		int sixdigit=0;
+		for(int k=0;k<row;k++)   //6비트로 쪼개기
 		{
-			int sixdigit=0;
-			for(int k=0;k<row;k++)
+			for(int l=0;l<6;l++)
 			{
-				for(int l=0;l<6;l++)
-				{
-					if( SbSize%6!=0&&sb_size==0&&sixdigit>row+6)  //패딩
-					{
-						int pedding_num=6-((6*row)-SbSize);
-						for(int q=pedding_num;q<6;q++)
-						{
-							six_binary[row-1][q]=0;
-						}
-					}
-					else
-					{
-						six_binary[k][l]=sum_binary[l+sixdigit];
-						sb_size--;
-					}
-				}
-				sixdigit+=6;
+				if( SbSize%6!=0 && (k*6)+l>=SbSize)  //6비트 미만이 데이터의 경우 0을 추가한다.
+						six_binary[k][l]=0;
+				else
+					six_binary[k][l]=sum_binary[l+sixdigit];
 			}
+			sixdigit+=6;
 		}
 		int[] sum_decimal;
 		sum_decimal=new int[row];
@@ -132,6 +95,16 @@ public class Base64
 				           'a','b','c','d','e','f','g','h','i','j','k','l','m','n',
 				           'o','p','q','r','s','t','u','v','w','x','y','z',
 				           '0','1','2','3','4','5','6','7','8','9','+','/'};
+		char [] b64_result;
+		
+		if(((SbSize-1)%3)==0)
+		{
+			b64_result=new char[row+2];
+		}
+		else if(((SbSize-2)%3)==0)
+			b64_result=new char[row+1];
+		else
+			b64_result=new char[row];
 		
 		for(int k=0;k<row;k++)	
 		{
@@ -139,19 +112,23 @@ public class Base64
 			{
 				if(count_decimal[k][kk]==1)
 				{
-					System.out.print(basetable[kk]);
+					b64_result[k]=basetable[kk];
 				}
 			}
 		}
-		System.out.println();
-		if(((text_ch.length)-1/3)==0)
-			System.out.print("==");
-		if(((text_ch.length)-2/3)==0)
-			System.out.print("=");
-		return "";
+
+		if(((SbSize-1)%3)==0)  //패딩표시
+		{
+			b64_result[row+1]='=';
+			b64_result[row]='=';
+		}
+		else if(((SbSize-2)%3)==0)
+			b64_result[row]='=';
+		
+		return new String(b64_result);
 	}
 	
-	public static byte decode(String input)
+	public static byte[] decode(String input)
 	{
 		int dc_size= input.length();
 		int full_dc=dc_size*6;
@@ -228,8 +205,12 @@ public class Base64
 				eightdigit+=8;
 			}
 		}
+		
 		int[] dc_decimal;
 		dc_decimal=new int[row];
+		
+		byte[] b64_result;
+		b64_result=new byte[row];
 		
 		for(int k=0;k<row;k++)       //10진수로 다시변환
 		{
@@ -244,13 +225,12 @@ public class Base64
 			}
 			dc_decimal[k]=n3;
 		}
-		
-		for(int k=0;k<row;k++)
+		for(int i=0;i<row;i++)
 		{
-			System.out.print((char)dc_decimal[k]);
+			System.out.print((char)dc_decimal[i]);
 		}
 		System.out.println();
-		return 0;
+		return b64_result;
 	}
 
 }
