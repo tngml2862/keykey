@@ -20,11 +20,6 @@ public class Main {
 	
 	public static void test_hex() 
 	{
-		String suhee="13095468616e6b20596f75"; //printable String
-		byte[] suHex=WKKDer.decode(suhee);
-		System.out.print(WKKDer.tag(suhee));
-		System.out.println(new String(suHex));
-		
 		String a1="130E416e79626f64792074686572653f";
 		byte[] der1=WKKDer.decode(a1);
 		System.out.print(WKKDer.tag(a1));
